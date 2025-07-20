@@ -1,0 +1,16 @@
+{
+  "name": "nft-valuation-engine",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "hardhat"
+  ],
+  "scripts": {
+    "start": "npm run start --workspace=backend",
+    "start:frontend": "npm run start --workspace=frontend",
+    "deploy": "npm run deploy --workspace=hardhat",
+    "test": "npm test --workspaces --if-present"
+  }
+}
