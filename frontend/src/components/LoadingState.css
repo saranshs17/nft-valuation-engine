@@ -1,0 +1,227 @@
+.loading-state {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 3rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.loading-header h3 {
+  font-size: 1.8rem;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #fff, var(--accent-green-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loading-header p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.agent-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.agent-card.active {
+  background: rgba(0, 245, 160, 0.1);
+  border-color: rgba(0, 245, 160, 0.3);
+  transform: scale(1.02);
+}
+
+.agent-card.complete {
+  background: rgba(0, 245, 160, 0.05);
+  border-color: rgba(0, 245, 160, 0.2);
+}
+
+.agent-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.agent-card.active .agent-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.agent-info {
+  flex: 1;
+}
+
+.agent-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.agent-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.status-dot.active {
+  background: var(--accent-green-bright);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.status-check {
+  color: var(--accent-green-bright);
+  font-weight: bold;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.agent-card.active .status-text {
+  color: var(--accent-green-bright);
+}
+
+.progress-section {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green-dark), var(--accent-green-bright));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.progress-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(100px); }
+}
+
+.progress-text {
+  position: absolute;
+  right: 0;
+  top: -25px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.loading-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 2px solid rgba(0, 245, 160, 0.2);
+  border-radius: 50%;
+  animation: pulseRing 3s ease-out infinite;
+}
+
+.pulse-ring:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.pulse-ring:nth-child(3) {
+  animation-delay: 2s;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}

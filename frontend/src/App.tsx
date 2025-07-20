@@ -2,67 +2,100 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { NftForm } from './components/NftForm';
 import { ResultDisplay } from './components/ResultDisplay';
+import { MarketInsights } from './components/MarketInsights';
+import { LoadingState } from './components/LoadingState';
+import { Header } from './components/Header';
 
-export interface NftData {
-  name: string;
-  imageUrl: string;
+export interface SwarmData {
   valuation: number;
-  collectionName: string;
+  confidence: number;
+  factors: {
+    rarity: number;
+    market: number;
+    utility: number;
+    trend: number;
+  };
+  marketAnalysis: {
+    trend: string;
+    volatility: string;
+    liquidityScore: number;
+    recommendation: string;
+  };
+  metadata: {
+    name: string;
+    imageUrl: string;
+    collection: string;
+    attributes: any[];
+  };
+}
+
+export interface LoadingPhase {
+  phase: 'idle' | 'collecting' | 'analyzing' | 'blockchain' | 'complete';
+  message: string;
+  progress: number;
 }
 
 function App() {
-  const [nftData, setNftData] = useState<NftData | null>(null);
+  const [swarmData, setSwarmData] = useState<SwarmData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState<LoadingPhase>({
+    phase: 'idle',
+    message: '',
+    progress: 0
+  });
 
   useEffect(() => {
-    if (nftData || error) {
+    if (swarmData || error) {
       setIsFinished(true);
+      setLoadingPhase({ phase: 'complete', message: 'Analysis complete!', progress: 100 });
     }
-  }, [nftData, error]);
+  }, [swarmData, error]);
+
+  const simulateLoadingPhases = () => {
+    const phases = [
+      { phase: 'collecting' as const, message: 'Data Collection Agent gathering NFT data...', progress: 25, duration: 2000 },
+      { phase: 'analyzing' as const, message: 'Valuation & Market Agents analyzing...', progress: 60, duration: 2000 },
+      { phase: 'blockchain' as const, message: 'Recording valuation on blockchain...', progress: 90, duration: 1500 }
+    ];
+
+    phases.forEach((phase, index) => {
+      setTimeout(() => {
+        if (loading) {
+          setLoadingPhase(phase);
+        }
+      }, phases.slice(0, index).reduce((acc, p) => acc + p.duration, 0));
+    });
+  };
 
   const handleValuation = async (contractAddress: string, tokenId: string) => {
     setLoading(true);
     setError(null);
-    setNftData(null);
+    setSwarmData(null);
     setIsFinished(false);
+    setLoadingPhase({ phase: 'collecting', message: 'Initializing JuliaOS agents...', progress: 10 });
+
+    simulateLoadingPhases();
 
     try {
-      const alchemyApiKey = process.env.REACT_APP_ALCHEMY_API_KEY;
-      if (!alchemyApiKey) {
-        throw new Error("Alchemy API key is not configured in the frontend .env file.");
-      }
-      
-      const alchemyUrl = `https://eth-sepolia.g.alchemy.com/nft/v2/${alchemyApiKey}/getNFTMetadata`;
-      
-      const metadataPromise = fetch(`${alchemyUrl}?contractAddress=${contractAddress}&tokenId=${tokenId}`)
-        .then(res => res.json());
-
-      const valuationPromise = fetch('http://localhost:3001/api/valuate', {
+      const response = await fetch('http://localhost:3001/api/valuate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contractAddress, tokenId }),
-      }).then(res => {
-        if (!res.ok) throw new Error("Valuation request failed");
-        return res.json();
       });
 
-      const [metadata, valuationResult] = await Promise.all([metadataPromise, valuationPromise]);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Valuation request failed");
+      }
 
-      const getImageUrl = (meta: any) => {
-        return meta.media?.[0]?.gateway || meta.contract?.openSea?.imageUrl || 'https://via.placeholder.com/300';
-      };
-
-      setNftData({
-        name: metadata.title || 'Unnamed NFT',
-        collectionName: metadata.contract?.name || 'Unknown Collection',
-        imageUrl: getImageUrl(metadata),
-        valuation: valuationResult.valuation,
-      });
+      const result = await response.json();
+      setSwarmData(result);
 
     } catch (err: any) {
       setError(err.message);
+      setLoadingPhase({ phase: 'idle', message: '', progress: 0 });
     } finally {
       setLoading(false);
     }
@@ -70,25 +103,58 @@ function App() {
 
   return (
     <div className="App">
-      <div className="background-grid"></div>
-      <div className="gradient-bg"></div>
+      <div className="animated-background">
+        <div className="grid-overlay"></div>
+        <div className="gradient-orb gradient-orb-1"></div>
+        <div className="gradient-orb gradient-orb-2"></div>
+        <div className="gradient-orb gradient-orb-3"></div>
+      </div>
       
-      <main className="container">
-        <header className="app-header">
-          <h1>NFT Valuation Engine</h1>
-          <p>An AI-powered dApp built on the JuliaOS Framework</p>
-        </header>
-        
-        <div className="card">
-          <NftForm onValuation={handleValuation} loading={loading} />
-        </div>
+      <Header />
+      
+      <main className="main-container">
+        <div className="content-wrapper">
+          <div className="form-section">
+            <div className="glass-card">
+              <h2 className="card-title">
+                <span className="title-icon">🔍</span>
+                Analyze NFT Value
+              </h2>
+              <p className="card-description">
+                Enter an NFT contract address and token ID to activate our multi-agent swarm
+              </p>
+              <NftForm onValuation={handleValuation} loading={loading} />
+            </div>
+          </div>
 
-        <div className={`result-container ${isFinished ? 'visible' : ''}`}>
-          {loading && <div className="spinner"></div>}
-          {error && <div className="error-message"><span>!</span> {error}</div>}
-          {nftData && <ResultDisplay data={nftData} />}
+          {(loading || isFinished) && (
+            <div className={`results-section ${isFinished ? 'visible' : ''}`}>
+              {loading && <LoadingState phase={loadingPhase} />}
+              
+              {error && (
+                <div className="error-container animate-in">
+                  <div className="error-icon">⚠️</div>
+                  <div className="error-content">
+                    <h3>Analysis Failed</h3>
+                    <p>{error}</p>
+                  </div>
+                </div>
+              )}
+              
+              {swarmData && !loading && (
+                <div className="results-grid animate-in">
+                  <ResultDisplay data={swarmData} />
+                  <MarketInsights analysis={swarmData.marketAnalysis} factors={swarmData.factors} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
+
+      <footer className="app-footer">
+        <p>Powered by JuliaOS Multi-Agent Framework</p>
+      </footer>
     </div>
   );
 }
