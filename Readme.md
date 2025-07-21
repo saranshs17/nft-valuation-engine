@@ -303,7 +303,7 @@ Contributions are welcome!
 
 ## 🙏 Acknowledgments
 
-* 🧬 [JuliaOS](https://github.com/JuliaOS) — for the agent framework
+* 🧬 [JuliaOS](https://github.com/Juliaoscode/JuliaOS) — for the agent framework
 * 🧠 OpenAI — for architectural inspiration
 * 🔗 Ethereum Community — for Web3 infrastructure
 
